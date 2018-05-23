@@ -1090,7 +1090,10 @@ def _find_module(mod_name):
     for part in mod_name.split('.'):
         if path is not None:
             path = [path]
-        file, path, description = imp.find_module(part, path)
+        if PY3:
+            importlib.util.find_spec(name, package=None)
+        else:
+            file, path, description = imp.find_module(part, path)
         if file is not None:
             file.close()
     return path, description
