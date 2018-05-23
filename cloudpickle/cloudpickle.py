@@ -44,7 +44,6 @@ from __future__ import print_function
 
 import dis
 from functools import partial
-import imp
 import io
 import itertools
 import logging
@@ -65,6 +64,7 @@ DEFAULT_PROTOCOL = pickle.HIGHEST_PROTOCOL
 
 
 if sys.version < '3':
+    import imp
     from pickle import Pickler
     try:
         from cStringIO import StringIO
@@ -73,6 +73,7 @@ if sys.version < '3':
     PY3 = False
 else:
     types.ClassType = type
+    import importlib
     from pickle import _Pickler as Pickler
     from io import BytesIO as StringIO
     PY3 = True
@@ -910,7 +911,10 @@ def subimport(name):
 
 
 def dynamic_subimport(name, vars):
-    mod = imp.new_module(name)
+    if PY3:
+         mod = types.ModuleType(name)
+    else:
+         mod = imp.new_module(name)
     mod.__dict__.update(vars)
     sys.modules[name] = mod
     return mod
